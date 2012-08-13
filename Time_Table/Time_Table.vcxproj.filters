@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{ad812f3e-3f12-4da8-b4d2-bf0eb8d8cef4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File">
+      <UniqueIdentifier>{d9b9fb41-5cdc-4ba0-8a95-875d308efe4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ExamSchedule">
+      <UniqueIdentifier>{68f1dc32-6470-4173-8015-def774ea1692}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TimeTable">
+      <UniqueIdentifier>{23b186e5-147d-4429-9ba0-3c015a4a057b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Student.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Subject.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+    <ClCompile Include="Load.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="ExamSchedule.cpp">
+      <Filter>ExamSchedule</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>Data</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Datatypes.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="Load.h">
+      <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="ExamSchedule.h">
+      <Filter>ExamSchedule</Filter>
+    </ClInclude>
+    <ClInclude Include="SubjectExam.h">
+      <Filter>ExamSchedule</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeTable.h">
+      <Filter>TimeTable</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
