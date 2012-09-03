@@ -51,7 +51,7 @@ void Load::load_students_csv()
 
 		if(!registered)
 		{
-			Student *std = new Student(student_name, student_id);
+			Student *std = new Student(student_name, student_id, students.size());
 			for(int j = 0; j < subjects.size(); j ++)
 			{
 				if(subjects[j]->id() == subj_id)
@@ -78,6 +78,12 @@ void Load::load_subjects_csv()
 	while (in.good())
 	{
 		// 과목 코드 얻는다.
+
+		/***************************************
+		* 참고로 과목 코드는 입력 받는 과목 순서와 동일해야한다!*
+		* 즉 과목 코드는 0 부터 시작한다                              *
+		***************************************/
+
 		getline(in, temp, ','); 
 		int code = atoi(temp.c_str()); 
 

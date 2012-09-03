@@ -1,6 +1,7 @@
 ﻿#include "Datatypes.h"
 #include <iostream>
 #include <fstream>
+#include <dynamic_bitset.hpp>
 #pragma once
 
 class Load

@@ -86,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Datatypes.h" />
+    <ClInclude Include="Error.h" />
     <ClInclude Include="ExamSchedule.h" />
     <ClInclude Include="Load.h" />
     <ClInclude Include="TimeTable.h" />

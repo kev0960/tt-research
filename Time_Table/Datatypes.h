@@ -2,23 +2,82 @@
 #include <bitset>
 #include <deque>
 #include <vector>
+#include <dynamic_bitset.hpp>
+#include "Error.h"
+
 using namespace std;
 
 class Subject;
 class Student;
 
+extern boost::dynamic_bitset<> ZERO;
+extern boost::dynamic_bitset<> ONE;
+
+class ExamTime
+{
+	int time; // 몇 일 몇 교시인지 나타낸다.
+
+public:
+	// day 번째 hour 교시 (1 교시면 0, 1 째 날이면 0)
+	ExamTime(int day, int hour)
+	{
+		time = day * 10 + hour; 
+	}
+	ExamTime(ExamTime &_time)
+	{
+		time = _time.time;
+	}
+	ExamTime(int x = 0) { time = x; }
+
+	inline int hour() { return (time % 10); }
+	inline int day() { return (time / 10); }
+	inline int hour(int hour) { time = 10 * (time / 10) + hour; }
+	inline int day(int day) { time = time % 10 + day * 10; }
+
+	// 배열에 선형으로 시간표 배열시 몇 번째에 위치하는지 나타낸다.
+	inline int n_th() { return 5 * day() + hour(); }
+
+	void inc_hour()
+	{
+		// 4 교시 (3) 다음에 다음날 1교시로 넘어간다. 
+		if(this->hour() < 3)
+		{
+			time = time + 10;
+			time = 10 * (time / 10);
+		}
+		else
+			time ++;
+	}
+	void inc_day() { time += 10; }
+
+	bool operator==(ExamTime &_time) { return time == _time.time; }
+	bool operator!= (ExamTime &_time) { return time != _time.time; }
+	ExamTime& operator= (ExamTime &_time) 
+	{ 
+		time = _time.time;
+		return (*this);
+	}
+};
+
 class Student
 {
 	string _name;
 	int _id; // 학생 id
+	int _internal_id; // student 배열에서 몇 번째로 위치해있는지
+
 	bitset<32> _available_time; // 7 + 7 + 4 + 7 + 7 교시에서 각각 가능한 시간에 0 이 된다.
 	deque<Subject *> _subject_list;
 
+	boost::dynamic_bitset<> _subject_mask;
 public:
-	Student(string name, int id) : _name(name), _id(id), _available_time(0) {}
+	Student(string name, int id, int internal_id) : _name(name), _id(id), _available_time(0), _internal_id(internal_id) {}
 	
-	int id() { return _id; }
-	string name() { return _name; }
+	inline int id() { return _id; }
+	inline int internal_id() { return _internal_id; }
+	inline string name() { return _name; }
+	inline boost::dynamic_bitset<> subject_mask() { return _subject_mask; }
+
+	void set_subject_mask(); 
 
 	// 화요일 3교시면 time 은 12 가 된다.
 	void set_time(int time);
@@ -49,6 +108,8 @@ protected:
 	int _hour; // 수업 전체 시수
 	string _partition; // 시간 분할이 어떻게 되는지
 
+	boost::dynamic_bitset<> _student_mask; // 학생 정보 가지는 hash
+
 public:
 
 	// division 개수를 설정해야 한다.
@@ -57,6 +118,7 @@ public:
 		_hour(hour), _id(id), _teacher_avail(teacher_avail), _partition(partition) {}
 
 	void add_student(Student *std);
+	void set_student_mask(vector<Student*>& students);
 
 	inline string name() { return _name; }
 	inline int id() { return _id; }
@@ -67,6 +129,7 @@ public:
 	inline string partition() { return _partition; }
 	inline int num_max_student() { return _num_max_student; }
 	inline int num_min_student() { return _num_min_student; }
+	inline boost::dynamic_bitset<> student_mask() { return _student_mask; }
 	virtual inline bitset<32> teaching_time() { return 0; }
 
 	// 두 분반 사이에 겹치는 시간수를 알린다. 

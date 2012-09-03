@@ -65,5 +65,8 @@
     <ClInclude Include="TimeTable.h">
       <Filter>TimeTable</Filter>
     </ClInclude>
+    <ClInclude Include="Error.h">
+      <Filter>Data</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -11,17 +11,17 @@ class SubjectExam : public Subject
 	int _pin; 
 	
 	// 시험 보는 시간
-	boost::dynamic_bitset<> _exam_time;
+	ExamTime _exam_time; 
 
 public:
 	SubjectExam(string name, int max_std, int min_std, int hour, int id, int teacher_avail, string partition, int priority, int pin, int exam_days) 
 		: Subject(name, max_std, min_std, hour, id, teacher_avail, partition), _priority(priority), _pin(pin)
 	{
-		_exam_time.resize(exam_days * 6);
 	}
 
 	inline int priority() { return _priority; }
-	inline boost::dynamic_bitset<> exam_time() { return _exam_time; }
-	void set_exam_time (boost::dynamic_bitset<> exam_time) 	{ _exam_time = exam_time; }
+	inline int pin() { return _pin; }
+	inline ExamTime exam_time() { return _exam_time; }
+	void set_exam_time (ExamTime exam_time) 	{ _exam_time = exam_time; }
 
 };
