@@ -37,7 +37,7 @@ void Load::load_students_csv()
 			{
 				for(int j = 0; j < static_cast<int>(subjects.size()); j ++)
 				{
-					if(subjects[i]->id() == subj_id)
+					if(subjects[j]->id() == subj_id)
 					{
 						students[i]->subject_list().push_back(subjects[j]);
 						subjects[j]->add_student(students[i]);
@@ -52,6 +52,7 @@ void Load::load_students_csv()
 		if(!registered)
 		{
 			Student *std = new Student(student_name, student_id, students.size());
+			cout << student_name << " " << student_id << endl; 
 			for(int j = 0; j < subjects.size(); j ++)
 			{
 				if(subjects[j]->id() == subj_id)
@@ -72,6 +73,7 @@ void Load::load_students_csv()
 // csv 파일로 부터 과목 정보를 받아온다.
 void Load::load_subjects_csv()
 {
+	int internal_id = 0;
 	ifstream in(subject_file);
 
 	string temp;
@@ -114,7 +116,9 @@ void Load::load_subjects_csv()
 		getline(in, temp, ',');
 		string str = temp;
 
-		subjects.push_back(new Subject(name, max_student, min_student, hour, code, teacher, str));
+		subjects.push_back(new Subject(name, max_student, min_student, hour, code, internal_id, teacher, str));
+
+		internal_id ++;
 	}
 
 	in.close();

@@ -1,5 +1,6 @@
 ﻿#include <bitset>
 #include <cstdint>
+#pragma once
 
 using namespace std;
 

@@ -62,19 +62,19 @@ bool Student::time_avail(int time)
 }
 
 // 과목 mask 를 설정한다
-void Student::set_subject_mask()
+void Student::set_subject_mask(vector<Subject *>& subjects)
 {
-	_subject_mask.resize(_subject_list.size()); // 각 과목을 포함하는지에 대한 유무를 알고있음
+	_subject_mask.resize(subjects.size()); // 각 과목을 포함하는지에 대한 유무를 알고있음
 	for(deque<Subject*>::iterator itr = _subject_list.begin(); itr != _subject_list.end(); itr ++)
 	{
-		boost::dynamic_bitset<> one(_subject_list.size(), static_cast<unsigned long>(1));
+		boost::dynamic_bitset<> one(subjects.size(), static_cast<unsigned long>(1));
 
 		/***************************************
 		* 참고로 과목 코드는 입력 받는 과목 순서와 동일해야한다!*
 		* 즉 과목 코드는 0 부터 시작한다                              *
 		***************************************/
 
-		one << ((*itr)->id()); 
+		one << ((*itr)->internal_id()); 
 		_subject_mask |= one; 
 	}
 }

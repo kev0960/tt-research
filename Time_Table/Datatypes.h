@@ -4,6 +4,12 @@
 #include <vector>
 #include <dynamic_bitset.hpp>
 #include "Error.h"
+#pragma once
+
+#define MAX_CLASS_AVAIL 20 // 한 교시에 사용 가능한 최대 교실의 수
+#define MAX_CLASS_TIME 5 // 하루동안 시험 교시 수
+#define MAX_PRIORITY 30 // 시험 priority 하루 동안의 최대값
+#define MAX_MATH_SCIENCE_SUBJECT 2 // 하루동안 볼 수 있는 수학 및 과학 과목 최대값
 
 using namespace std;
 
@@ -23,24 +29,24 @@ public:
 	{
 		time = day * 10 + hour; 
 	}
-	ExamTime(ExamTime &_time)
+	ExamTime(const ExamTime &_time)
 	{
 		time = _time.time;
 	}
 	ExamTime(int x = 0) { time = x; }
 
-	inline int hour() { return (time % 10); }
-	inline int day() { return (time / 10); }
-	inline int hour(int hour) { time = 10 * (time / 10) + hour; }
-	inline int day(int day) { time = time % 10 + day * 10; }
+	inline int hour() const { return (time % 10); }
+	inline int day() const { return (time / 10); }
+	inline int hour(int hour) { time = 10 * (time / 10) + hour; return (time % 10); }
+	inline int day(int day) { time = time % 10 + day * 10; return (time / 10); }
 
 	// 배열에 선형으로 시간표 배열시 몇 번째에 위치하는지 나타낸다.
-	inline int n_th() { return 5 * day() + hour(); }
+	inline int n_th() { return MAX_CLASS_TIME * day() + hour(); }
 
 	void inc_hour()
 	{
 		// 4 교시 (3) 다음에 다음날 1교시로 넘어간다. 
-		if(this->hour() < 3)
+		if(this->hour() == MAX_CLASS_TIME - 1)
 		{
 			time = time + 10;
 			time = 10 * (time / 10);
@@ -49,14 +55,18 @@ public:
 			time ++;
 	}
 	void inc_day() { time += 10; }
-
-	bool operator==(ExamTime &_time) { return time == _time.time; }
-	bool operator!= (ExamTime &_time) { return time != _time.time; }
-	ExamTime& operator= (ExamTime &_time) 
+	void show() { cout << hour() << " 째 날 " << day() << " 교시 " << endl; }
+	bool operator==(const ExamTime &_time) { return time == _time.time; }
+	bool operator!= (const ExamTime &_time) { return time != _time.time; }
+	bool operator< (const ExamTime & _time) { return time < _time.time; }
+	friend bool operator< (const ExamTime &_time1, const ExamTime &_time2) { return _time1.time > _time2.time; }
+	friend ostream& operator<< (ostream& os, const ExamTime &_time) { os << _time.day() + 1<< " 일 " << _time.hour() + 1 << " 교시 "; return os;}
+	ExamTime& operator= (const ExamTime &_time) 
 	{ 
 		time = _time.time;
 		return (*this);
 	}
+	
 };
 
 class Student
@@ -71,13 +81,13 @@ class Student
 	boost::dynamic_bitset<> _subject_mask;
 public:
 	Student(string name, int id, int internal_id) : _name(name), _id(id), _available_time(0), _internal_id(internal_id) {}
-	
+
 	inline int id() { return _id; }
 	inline int internal_id() { return _internal_id; }
 	inline string name() { return _name; }
 	inline boost::dynamic_bitset<> subject_mask() { return _subject_mask; }
 
-	void set_subject_mask(); 
+	void set_subject_mask(vector<Subject *>& subjects); 
 
 	// 화요일 3교시면 time 은 12 가 된다.
 	void set_time(int time);
@@ -92,9 +102,10 @@ public:
 class Subject
 {
 protected:
-	
+
 	string _name;
 	int _id; // 과목 id
+	int _internal_id; 
 
 	const int _num_max_student; // 최대 학생수
 	const int _num_min_student; // 최소 학생수
@@ -113,15 +124,23 @@ protected:
 public:
 
 	// division 개수를 설정해야 한다.
-	Subject(string name, int _max_std, int _min_std, int hour, int id, int teacher_avail, string partition) 
+	Subject(string name, int _max_std, int _min_std, int hour, int id, int internal_id, int teacher_avail, string partition) 
 		: _name(name), _num_student(0), _num_division(0), _num_max_student(_max_std), _num_min_student(_min_std),
-		_hour(hour), _id(id), _teacher_avail(teacher_avail), _partition(partition) {}
+		_hour(hour), _id(id), _internal_id(internal_id), _teacher_avail(teacher_avail), _partition(partition) 	{}
 
 	void add_student(Student *std);
+	void set_division();
 	void set_student_mask(vector<Student*>& students);
+	void set_student_mask(boost::dynamic_bitset<> mask) { _student_mask = mask; }
+	void set_student_list(deque<Student *>& student_list) 
+	{
+		for(deque<Student *>::iterator itr = student_list.begin(); itr != student_list.end(); itr ++)
+			_student_list.push_back(*itr);
+	}
 
 	inline string name() { return _name; }
 	inline int id() { return _id; }
+	inline int internal_id() { return _internal_id; }
 	inline int num_student() { return _num_student; }
 	inline int num_division() { return _num_division; }
 	inline int teacher_avail() { return _teacher_avail; }
@@ -129,6 +148,7 @@ public:
 	inline string partition() { return _partition; }
 	inline int num_max_student() { return _num_max_student; }
 	inline int num_min_student() { return _num_min_student; }
+	inline deque<Student *>& student_list() { return _student_list; }
 	inline boost::dynamic_bitset<> student_mask() { return _student_mask; }
 	virtual inline bitset<32> teaching_time() { return 0; }
 
@@ -146,12 +166,12 @@ class SubjectClass : public Subject
 
 public:
 
-	SubjectClass(string name, int _max_std, int _min_std, int hour, int id, int class_id, int teacher_avail, string partition) 
-		: Subject(name, _max_std, _min_std, hour, id, teacher_avail, partition), _class_id(class_id)
+	SubjectClass(string name, int _max_std, int _min_std, int hour, int id, int internal_id, int class_id, int teacher_avail, string partition) 
+		: Subject(name, _max_std, _min_std, hour, id, internal_id, teacher_avail, partition), _class_id(class_id)
 	{
 	}
 	SubjectClass(Subject &subject, int class_id, int _num_division) : Subject(subject.name(), subject.num_max_student(), 
-		subject.num_min_student(), subject.hour(), subject.id(), subject.teacher_avail(), subject.partition()), _class_id(class_id)
+		subject.num_min_student(), subject.hour(), subject.id(), subject.internal_id(), subject.teacher_avail(), subject.partition()), _class_id(class_id)
 	{
 	}
 

@@ -20,5 +20,12 @@ public:
 	{
 		load_subjects_csv();
 		load_students_csv();
+
+		for(int i = 0; i != subjects.size(); i ++) {
+			subjects[i]->set_student_mask(students);
+			subjects[i]->set_division();
+		}
+		for(int i = 0; i != students.size(); i ++)
+			students[i]->set_subject_mask(subjects);
 	}
 };
