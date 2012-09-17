@@ -8,6 +8,8 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
+void remove_ith_from_back(priority_queue<SubjectExam *, std::vector<SubjectExam *>, CompareSubjectExam> &queue, SubjectExam *s);
+
 int ExamSchedule::count_conflict(Subject *subject1, Subject *subject2)
 {
 	boost::dynamic_bitset<> temp(subject1->student_mask() & subject2->student_mask());
@@ -65,6 +67,8 @@ void ExamSchedule::schedule()
 
 	complementary_pairs();
 	int i = 0;
+
+	std::vector<SubjectExam*> in_priority;
 	while (!subject_exams.empty()){
 		// 가장 priority 가 큰 과목들 순으로 timetable 에 삽입하게 된다. 
 		SubjectExam *subj = subject_exams.top();
@@ -79,6 +83,33 @@ void ExamSchedule::schedule()
 			insert_timetable(subj);
 		} catch(Error::Error e) {
 			e.print_error();
+
+			subj->set_error_occured(true);
+			
+			// 만일 삽입이 불가능 하였을 경우 importance 값을 변경해서 이전에 
+			// 삽입된 시간표 보다 먼저 삽입되도록 해보자.
+			int pos = 1;
+			for(; pos <= in_priority.size(); pos ++) {
+				if(in_priority[in_priority.size() - pos]->error_occured() == false) {
+					break;
+				}
+			}
+
+			if( pos > in_priority.size() )
+				throw Error::Error(NO_AVAIL_CLASS_SWAP_ERROR);
+
+			double imp_temp = in_priority[in_priority.size() - pos]->importance();
+			in_priority[in_priority.size() - pos]->set_importance(subj->importance());
+			in_priority[in_priority.size() - pos]->set_inserted(false);
+			time_subject[in_priority[in_priority.size() - pos]->exam_time().n_th()].pop_back();
+
+			subj->set_importance(imp_temp);
+			subject_exams.push(subj);
+			subject_exams.push(in_priority[in_priority.size() - pos]);
+
+			in_priority.erase(in_priority.begin() + in_priority.size() - pos);
+
+			continue; 
 		}
 
 		// 만일 상보적인 과목이 있을 경우 이 과목은 지금 이 시간표와 같은 시간에
@@ -103,6 +134,10 @@ void ExamSchedule::schedule()
 		}
 
 		cout << subj->exam_time() << endl;
+
+		// 처리한 과목 순서대로 벡터에 삽입한다.
+		in_priority.push_back(subj);
+
 		subject_exams.pop(); 
 	}
 
@@ -121,6 +156,24 @@ void ExamSchedule::schedule()
 			total ++;
 	}
 	cout << total << " / " << exam.size() << endl;
+}
+void remove_ith_from_back(priority_queue<SubjectExam *, std::vector<SubjectExam *>, CompareSubjectExam> &queue, SubjectExam *s)
+{
+	deque<SubjectExam *> datas;
+	for(;;) {
+		if(queue.top() == s) {
+			queue.pop();
+			break;
+		}
+		datas.push_back(queue.top());
+		queue.pop();
+	}
+	// s 직전 까지 것들이 pop 되었다. 
+
+	for(int i = 0; i < datas.size(); i ++) {
+		queue.push(datas.back());
+		datas.pop_back();
+	}
 }
 void ExamSchedule::insert_timetable(SubjectExam *subject)
 {
@@ -174,8 +227,9 @@ void ExamSchedule::insert_timetable(SubjectExam *subject)
 
 	ExamTime max_time = ExamTime(0);
 
+	cout << " Num options : " << time_total_class.size() << endl;
 	for(map<ExamTime, int>::iterator itr = time_total_class.begin(); itr != time_total_class.end(); itr ++) {
-		double average = average_priority(itr->first, subject);
+		double average = average_priority(itr->first, subject, 1 - 5.5 / static_cast<double>(time_total_class.size()) );
 
 		if(!zero_priority_enable && average == 0) {
 			zero_priority_enable = true;
@@ -255,7 +309,7 @@ int ExamSchedule::max_priority(ExamTime day, SubjectExam *subject)
 
 	return max; 
 }
-double ExamSchedule::average_priority(ExamTime day, SubjectExam *subject)
+double ExamSchedule::average_priority(ExamTime day, SubjectExam *subject, double factor)
 {
 	ExamTime prev_day = day;
 	// 임시로 exam 에 추가해준다.
@@ -288,7 +342,7 @@ double ExamSchedule::average_priority(ExamTime day, SubjectExam *subject)
 	}
 
 	if(student_priority.size() == 0) return 0;
-	return sum / (pow(static_cast<double>(student_priority.size()), 0.5)); 
+	return sum / (pow(static_cast<double>(student_priority.size()), factor)); 
 }
 void ExamSchedule::pin_subjects()
 {
@@ -338,7 +392,7 @@ void ExamSchedule::complementary_pairs()
 		number_list.push_back(i); 
 
 	// 이제 priority_table 에서 순위 높은 과목만 미리 추가해버리자.
-	while (priority_table.size() > 30) {
+	while (priority_table.size() > 35) {
 		array_size max_i,  max_j;
 		double max = -1;
 

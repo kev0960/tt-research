@@ -44,7 +44,7 @@ public:
 	void insert_timetable(SubjectExam *subject); 
 
 	int max_priority(ExamTime day, SubjectExam *subject); // day 날에 시험보는 학생들 중 priority 최대값을 리턴한다.
-	double average_priority(ExamTime day, SubjectExam *subject); // day 날에 시험보는 학생들 중 subject 삽입시 평균 priority
+	double average_priority(ExamTime day, SubjectExam *subject, double factor); // day 날에 시험보는 학생들 중 subject 삽입시 평균 priority
 	
 	void complementary_pairs(); // 학생이 서로 안 겹치는 두 과목에 대해 priority 가 큰 쌍들을 찾는다. 
 

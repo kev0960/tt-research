@@ -24,11 +24,13 @@ class SubjectExam : public Subject
 	// 이미 추가된 과목
 	bool _inserted; 
 
+	bool _error_occured; 
+
 public:
 	SubjectExam(string name, int max_std, int min_std, int hour, int id, int internal_id,
 		int teacher_avail, string partition, int priority, int pin, int exam_days) 
 		: Subject(name, max_std, min_std, hour, id, internal_id, teacher_avail, partition),
-		_priority(priority), _pin(pin), _paired(-1), _inserted(false)
+		_priority(priority), _pin(pin), _paired(-1), _inserted(false), _error_occured(false)
 	{
 	}
 
@@ -37,10 +39,12 @@ public:
 	inline double importance() const { return _importance; }
 	inline int paired() const { return _paired; }
 	inline bool inserted() const { return _inserted; }
+	inline bool error_occured() const { return _error_occured; }
 
 	inline void set_importance(double importance) { _importance = importance; }
 	inline void set_paired(int paired) { _paired = paired; }
 	inline void set_inserted(bool inserted) { _inserted = inserted; }
+	inline void set_error_occured (bool error_occured) { _error_occured = error_occured; }
 
 	inline ExamTime exam_time() { return _exam_time; }
 	void set_exam_time (ExamTime exam_time) 	{ _exam_time = exam_time; }
